@@ -1,0 +1,5 @@
+{
+  "extends": "@w3gpt/tsconfig/ts-library.json",
+  "include": ["."],
+  "exclude": ["node_modules", "dist"]
+}
