@@ -27,14 +27,12 @@ async function deployContract() {
   try {
     const result = await client.deployContract({
       prompt: 'Create a simple ERC20 token with a fixed supply of 1000000',
-      chainId: ChainId.LINEA, // Optional, defaults to Linea (59902)
+      chainId: ChainId.SEPOLIA, // Optional, defaults to Sepolia (11155111)
     });
 
     console.log('Contract deployed:');
-    console.log('Address:', result.contractAddress);
-    console.log('Transaction:', result.txHash);
-    console.log('Chain ID:', result.chainId);
-    console.log('Generated Code:', result.code);
+    console.log('IPFS URL:', result.ipfsUrl);
+    console.log('Explorer URL:', result.explorerUrl);
   } catch (error) {
     console.error('Error deploying contract:', error);
   }
@@ -51,6 +49,7 @@ The SDK supports deploying to the following networks:
 - Arbitrum Testnet (`ChainId.ARBITRUM_SEPOLIA = 421614`)
 - Base Testnet (`ChainId.BASE_SEPOLIA = 84532`)
 - Mantle Testnet (`ChainId.MANTLE_SEPOLIA = 5003`)
+- Metis Testnet (`ChainId.METIS_SEPOLIA = 59902`)
 - Polygon Amoy Testnet (`ChainId.POLYGON_AMOY = 80002`)
 - Ethereum Sepolia Testnet (`ChainId.SEPOLIA = 11155111`)
 
@@ -70,16 +69,14 @@ const client = w3gpt({
 ```typescript
 const result = await client.deployContract({
   prompt: string; // Required: Natural language prompt describing the smart contract
-  chainId?: ChainId; // Optional: Target blockchain network ID (default: ChainId.LINEA)
+  chainId?: ChainId; // Optional: Target blockchain network ID (default: ChainId.SEPOLIA)
 });
 ```
 
 The response includes:
 
-- `code`: The generated Solidity code
-- `txHash`: The transaction hash of the deployment
-- `contractAddress`: The address of the deployed contract
-- `chainId`: The chainId where the contract was deployed
+- `ipfsUrl`: IPFS URL where the contract code and metadata are stored
+- `explorerUrl`: Block explorer URL for the deployed contract
 
 ## License
 

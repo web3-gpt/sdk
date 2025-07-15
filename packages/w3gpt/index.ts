@@ -53,24 +53,14 @@ export interface ContractDeployRequest {
  */
 export interface ContractDeployResponse {
   /**
-   * The generated Solidity code
+   * IPFS URL where the contract code and metadata are stored
    */
-  code: string;
+  ipfsUrl: string;
 
   /**
-   * The transaction hash of the deployment
+   * Block explorer URL for the deployed contract
    */
-  txHash: string;
-
-  /**
-   * The address of the deployed contract
-   */
-  contractAddress: string;
-
-  /**
-   * The chainId where the contract was deployed
-   */
-  chainId: ChainId;
+  explorerUrl: string;
 }
 
 /**
@@ -114,7 +104,7 @@ export class W3GPTClient {
   ): Promise<ContractDeployResponse> {
     const requestSchema = z.object({
       prompt: z.string().min(1),
-      chainId: z.nativeEnum(ChainId).optional().default(ChainId.METIS_SEPOLIA),
+      chainId: z.nativeEnum(ChainId).optional().default(ChainId.SEPOLIA),
     });
 
     const validatedParams = requestSchema.parse(params);
@@ -162,7 +152,7 @@ export class W3GPTClient {
  * // Deploy a contract
  * const result = await client.deployContract({
  *   prompt: "Create a simple ERC20 token with a fixed supply of 1000000",
- *   chainId: ChainId.LINEA
+ *   chainId: ChainId.SEPOLIA
  * });
  * ```
  */

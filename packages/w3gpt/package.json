@@ -1,6 +1,6 @@
 {
   "name": "w3gpt",
-  "version": "0.0.0",
+  "version": "0.0.2",
   "private": false,
   "license": "MIT",
   "main": "./dist/index.js",
@@ -9,7 +9,7 @@
   "files": [
     "dist/**"
   ],
-  "author": "W3GPT",
+  "author": "Markeljan Sokoli <mark@w3gpt.ai>",
   "scripts": {
     "build": "tsup index.ts --format cjs,esm --dts",
     "dev": "tsup index.ts --format cjs,esm --dts --watch",
