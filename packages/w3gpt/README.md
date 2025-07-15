@@ -60,7 +60,7 @@ The SDK supports deploying to the following networks:
 
 ```typescript
 const client = w3gpt({
-  apiKey: string; // Required: Your W3GPT API key
+  apiKey?: string; // Optional: Your W3GPT API key (will use process.env.W3GPT_API_KEY if not provided)
   baseUrl?: string; // Optional: Base URL for the W3GPT API (default: "https://w3gpt.ai/api/v1")
 });
 ```

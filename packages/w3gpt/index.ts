@@ -9,24 +9,27 @@ export enum ChainId {
   MANTLE_SEPOLIA = 5003,
   METIS_SEPOLIA = 59902,
   POLYGON_AMOY = 80002,
+  BASE_SEPOLIA = 84532,
 }
 
 /**
  * Configuration options for initializing the W3GPT client
  */
-export interface W3GPTConfig {
-  /**
-   * Your W3GPT API key
-   * @required
-   */
-  apiKey: string;
+export type W3GPTConfig =
+  | {
+      /**
+       * Your W3GPT API key (optional, will use process.env.W3GPT_API_KEY if not provided)
+       * @optional
+       */
+      apiKey?: string;
 
-  /**
-   * Base URL for the W3GPT API
-   * @default "https://w3gpt.ai/api/v1"
-   */
-  baseUrl?: string;
-}
+      /**
+       * Base URL for the W3GPT API
+       * @default "https://w3gpt.ai/api/v1"
+       */
+      baseUrl?: string;
+    }
+  | undefined;
 
 /**
  * Request parameters for deploying a smart contract
@@ -40,7 +43,7 @@ export interface ContractDeployRequest {
 
   /**
    * Target blockchain network ID for deployment
-   * @default ChainId.LINEA (59902)
+   * @default ChainId.SEPOLIA (11155111)
    */
   chainId?: ChainId;
 }
@@ -90,12 +93,15 @@ export class W3GPTClient {
    * @param config Configuration options for the client
    */
   constructor(config: W3GPTConfig) {
-    if (!config.apiKey) {
-      throw new Error("Request an API key at https://t.me/w3gptai");
+    const apiKey = config?.apiKey || process.env.W3GPT_API_KEY;
+    if (!apiKey) {
+      throw new Error(
+        "W3GPT_API_KEY key not found. Request an API key at https://t.me/w3gptai",
+      );
     }
 
-    this.apiKey = config.apiKey;
-    this.baseUrl = config.baseUrl || "https://w3gpt.ai/api/v1";
+    this.apiKey = apiKey;
+    this.baseUrl = config?.baseUrl || "https://w3gpt.ai/api/v1";
   }
 
   /**
@@ -128,7 +134,7 @@ export class W3GPTClient {
         try {
           const errorData = (await response.json()) as ApiErrorResponse;
           errorMessage = errorData.message || errorMessage;
-        } catch (e) {
+        } catch (_e) {
           // If parsing fails, use the status text
           errorMessage = response.statusText || errorMessage;
         }
@@ -160,7 +166,7 @@ export class W3GPTClient {
  * });
  * ```
  */
-export function w3gpt(config: W3GPTConfig): W3GPTClient {
+export function w3gpt(config?: W3GPTConfig): W3GPTClient {
   return new W3GPTClient(config);
 }
 
