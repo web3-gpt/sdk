@@ -1,6 +1,13 @@
-# W3GPT
+# w3gpt
 
-A TypeScript SDK for interacting with the W3GPT API to generate and deploy smart contracts using natural language prompts.
+TypeScript client for the Web3GPT skill endpoint.
+
+The SDK is intentionally simple:
+
+- call with no params to create a new chat
+- keep the returned `chatId`
+- pass that `chatId` on later calls to continue the same thread
+- set `history=true` or `full=true` if you want the full simplified history back
 
 ## Installation
 
@@ -14,70 +21,78 @@ bun add w3gpt
 
 ## Usage
 
-```typescript
-import { w3gpt, ChainId } from 'w3gpt';
+```ts
+import { w3gpt } from "w3gpt";
 
-// Initialize the client
+const client = w3gpt();
+
+const started = await client.startChat();
+console.log(started.chatId);
+
+const reply = await client.chat({
+  chatId: started.chatId,
+  message: "Deploy an ERC20 on Polygon mainnet with 1,000,000 supply",
+});
+
+console.log(reply.response);
+```
+
+## Read History
+
+```ts
+const result = await client.chat({
+  chatId: "your-chat-id",
+  history: true,
+});
+
+console.log(result.history);
+```
+
+## API
+
+### `w3gpt(config?)`
+
+```ts
 const client = w3gpt({
-  apiKey: 'w3gpt-api-key', // Get your API key at https://t.me/w3gptai
-});
-
-// Deploy a smart contract using a natural language prompt
-async function deployContract() {
-  try {
-    const result = await client.deployContract({
-      prompt: 'Create a simple ERC20 token with a fixed supply of 1000000',
-      chainId: ChainId.SEPOLIA, // Optional, defaults to Sepolia (11155111)
-    });
-
-    console.log('Contract deployed:');
-    console.log('IPFS URL:', result.ipfsUrl);
-    console.log('Explorer URL:', result.explorerUrl);
-  } catch (error) {
-    console.error('Error deploying contract:', error);
-  }
-}
-
-deployContract();
-```
-
-## Supported Networks
-
-The SDK supports deploying to the following networks:
-
-- Optimism Testnet (`ChainId.OPTIMISM_SEPOLIA = 11155420`)
-- Arbitrum Testnet (`ChainId.ARBITRUM_SEPOLIA = 421614`)
-- Base Testnet (`ChainId.BASE_SEPOLIA = 84532`)
-- Mantle Testnet (`ChainId.MANTLE_SEPOLIA = 5003`)
-- Metis Testnet (`ChainId.METIS_SEPOLIA = 59902`)
-- Polygon Amoy Testnet (`ChainId.POLYGON_AMOY = 80002`)
-- Ethereum Sepolia Testnet (`ChainId.SEPOLIA = 11155111`)
-
-## API Reference
-
-### Initialize Client
-
-```typescript
-const client = w3gpt({
-  apiKey?: string; // Optional: Your W3GPT API key (will use process.env.W3GPT_API_KEY if not provided)
-  baseUrl?: string; // Optional: Base URL for the W3GPT API (default: "https://w3gpt.ai/api/v1")
+  baseUrl?: string; // defaults to https://w3gpt.ai
+  fetch?: typeof fetch; // optional custom fetch implementation
 });
 ```
 
-### Deploy Contract
+### `client.startChat(agentId?)`
 
-```typescript
-const result = await client.deployContract({
-  prompt: string; // Required: Natural language prompt describing the smart contract
-  chainId?: ChainId; // Optional: Target blockchain network ID (default: ChainId.SEPOLIA)
+Create a new chat and receive a `chatId`.
+
+### `client.chat(params?)`
+
+```ts
+const result = await client.chat({
+  agentId?: string;
+  chatId?: string;
+  message?: string;
+  history?: boolean; // defaults to false
+  full?: boolean; // alias for history=true
 });
 ```
 
-The response includes:
+Response:
 
-- `ipfsUrl`: IPFS URL where the contract code and metadata are stored
-- `explorerUrl`: Block explorer URL for the deployed contract
+```ts
+type W3GPTChatResponse = {
+  agentId: string;
+  chatId: string;
+  response: string | null;
+  history?: Array<{
+    id: string;
+    role: "user" | "assistant" | "system";
+    text: string;
+  }>;
+};
+```
 
-## License
+## Notes
 
-MIT 
+- `chatId` is the secret for continuing the thread.
+- If you call `client.chat()` with no params, a new chat is created.
+- Deployments happen through the agent conversation itself.
+- Polygon mainnet deployment is supported through the skill endpoint.

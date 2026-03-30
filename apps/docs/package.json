@@ -4,22 +4,22 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack --port 3001",
+    "dev": "next dev --port 3001",
     "build": "next build",
     "start": "next start",
     "clean": "rm -rf .next",
     "tsc": "tsc --noEmit"
   },
   "dependencies": {
-    "next": "^15.2.3",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "next": "^16.2.1",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3"
   },
   "devDependencies": {
     "@w3gpt/tsconfig": "*",
     "@types/node": "^22.13.10",
-    "@types/react": "19.0.11",
-    "@types/react-dom": "19.0.4",
+    "@types/react": "^19.2.3",
+    "@types/react-dom": "^19.2.3",
     "typescript": "5.8.2"
   }
 }

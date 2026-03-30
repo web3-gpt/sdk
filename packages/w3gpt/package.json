@@ -1,8 +1,9 @@
 {
   "name": "w3gpt",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "private": false,
   "license": "MIT",
+  "description": "TypeScript client for the Web3GPT skill endpoint",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
