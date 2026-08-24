@@ -1,22 +1,44 @@
 {
   "name": "w3gpt",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": false,
   "license": "MIT",
   "description": "TypeScript client for the Web3GPT skill endpoint",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
   "files": [
     "dist/**"
   ],
   "author": "Markeljan Sokoli <mark@w3gpt.ai>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/web3-gpt/sdk.git",
+    "directory": "packages/w3gpt"
+  },
+  "homepage": "https://w3gpt.ai/skill.md",
+  "keywords": [
+    "agents",
+    "polygon",
+    "smart-contracts",
+    "web3"
+  ],
   "scripts": {
     "build": "tsup index.ts --format cjs,esm --dts",
     "dev": "tsup index.ts --format cjs,esm --dts --watch",
     "lint": "biome check .",
     "lint:fix": "biome check --apply .",
-    "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
+    "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist",
+    "prepack": "bun run build",
+    "test": "bun test index.test.ts",
+    "tsc": "tsc --noEmit"
   },
   "publishConfig": {
     "access": "public"
@@ -25,6 +47,7 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
+    "@types/bun": "^1.4.0",
     "@types/node": "^20.17.24",
     "tsup": "^8.4.0",
     "typescript": "^5.8.2"

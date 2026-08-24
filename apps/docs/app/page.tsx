@@ -2,21 +2,26 @@ import styles from "./page.module.css";
 
 const installSnippet = `npm install w3gpt`;
 
-const quickstartSnippet = `import { w3gpt } from "w3gpt";
+const quickstartSnippet = `import { PolygonChainId, w3gpt } from "w3gpt";
 
 const client = w3gpt();
 
-const started = await client.startChat();
-
-const reply = await client.chat({
-  chatId: started.chatId,
-  message: "Deploy an ERC20 on Polygon mainnet with 1,000,000 supply",
+const prepared = await client.deployContract({
+  chainId: PolygonChainId.Mainnet,
+  prompt: "An ERC20 named GrantProof with symbol GRANT and fixed supply.",
 });
 
-console.log(reply.response);`;
+console.log(prepared.response);
+
+const deployed = await client.chat({
+  chatId: prepared.chatId,
+  message: "Yes. I confirm deployment to Polygon mainnet, chain ID 137.",
+});
+
+console.log(deployed.response);`;
 
 const historySnippet = `const history = await client.chat({
-  chatId: started.chatId,
+  chatId: deployed.chatId,
   history: true,
 });
 
@@ -62,7 +67,9 @@ export default function Home() {
           <article className={styles.card}>
             <h2>Model</h2>
             <ul>
-              <li>Create a chat with no params</li>
+              <li>Select Polygon mainnet (137) or Amoy (80002)</li>
+              <li>Generate and review with one typed helper</li>
+              <li>Confirm deployment in the same chat</li>
               <li>Reuse the returned chatId</li>
               <li>Send messages through the same endpoint</li>
               <li>Add history=true when you need full history</li>
@@ -73,7 +80,7 @@ export default function Home() {
         <section className={styles.section}>
           <div className={styles.sectionHeader}>
             <p className={styles.kicker}>Quickstart</p>
-            <h2>Use the SDK as a thin wrapper over /api/skill.</h2>
+            <h2>Generate and deploy on Polygon mainnet.</h2>
           </div>
           <pre>{quickstartSnippet}</pre>
         </section>

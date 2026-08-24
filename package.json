@@ -6,6 +6,7 @@
     "dev": "turbo run dev",
     "check": "biome check",
     "check:fix": "biome check --write",
+    "test": "turbo run test",
     "tsc": "turbo run tsc",
     "clean": "turbo run clean"
   },

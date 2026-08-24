@@ -1,5 +1,15 @@
 import { z } from "zod";
 
+export const PolygonChainId = Object.freeze({
+  Amoy: 80002,
+  Mainnet: 137,
+});
+
+const polygonChainIdSchema = z.union([
+  z.literal(PolygonChainId.Mainnet),
+  z.literal(PolygonChainId.Amoy),
+]);
+
 const skillHistoryItemSchema = z.object({
   id: z.string(),
   role: z.enum(["user", "assistant", "system"]),
@@ -14,11 +24,24 @@ const chatRequestSchema = z.object({
   message: z.string().trim().min(1).optional(),
 });
 
+const deployContractRequestSchema = z.object({
+  agentId: z.string().optional(),
+  chainId: polygonChainIdSchema,
+  chatId: z.string().optional(),
+  full: z.boolean().optional(),
+  history: z.boolean().optional(),
+  prompt: z.string().trim().min(1),
+});
+
 const chatResponseSchema = z.object({
   agentId: z.string(),
   chatId: z.string(),
   history: z.array(skillHistoryItemSchema).optional(),
   response: z.string().nullable(),
+});
+
+const apiErrorResponseSchema = z.object({
+  error: z.string().optional(),
 });
 
 export type W3GPTConfig =
@@ -38,11 +61,28 @@ export type W3GPTConfig =
 
 export type W3GPTChatRequest = z.input<typeof chatRequestSchema>;
 export type W3GPTChatResponse = z.infer<typeof chatResponseSchema>;
+export type W3GPTDeployContractRequest = z.input<
+  typeof deployContractRequestSchema
+>;
 export type W3GPTHistoryItem = z.infer<typeof skillHistoryItemSchema>;
 
-type ApiErrorResponse = {
-  error?: string;
-};
+function buildDeploymentMessage(
+  chainId: W3GPTDeployContractRequest["chainId"],
+  prompt: string,
+): string {
+  const network =
+    chainId === PolygonChainId.Mainnet
+      ? "Polygon mainnet"
+      : "Polygon Amoy testnet";
+
+  return [
+    "Use a contract already generated in this chat when present; otherwise generate the requested smart contract.",
+    `Deploy it on ${network} (chain ID ${chainId}).`,
+    "After deployment, return the contract address, transaction hash, and Polygonscan URL.",
+    "",
+    prompt,
+  ].join("\n");
+}
 
 export class W3GPTClient {
   private readonly endpoint: URL;
@@ -95,8 +135,12 @@ export class W3GPTClient {
       let errorMessage = `HTTP error ${response.status}`;
 
       try {
-        const errorData = (await response.json()) as ApiErrorResponse;
-        errorMessage = errorData.error || errorMessage;
+        const errorData = apiErrorResponseSchema.safeParse(
+          await response.json(),
+        );
+        if (errorData.success && errorData.data.error) {
+          errorMessage = errorData.data.error;
+        }
       } catch {
         errorMessage = response.statusText || errorMessage;
       }
@@ -140,6 +184,25 @@ export class W3GPTClient {
    */
   async startChat(agentId?: string): Promise<W3GPTChatResponse> {
     return this.chat({ agentId });
+  }
+
+  /**
+   * Start a contract generation and deployment flow through the Web3GPT agent.
+   *
+   * An explicit chain ID is required so callers cannot accidentally send a
+   * testnet request to mainnet. Review the response, then pass the returned
+   * chatId to chat() to confirm deployment or answer any clarification.
+   */
+  async deployContract(
+    params: W3GPTDeployContractRequest,
+  ): Promise<W3GPTChatResponse> {
+    const validatedParams = deployContractRequestSchema.parse(params);
+    const { chainId, prompt, ...chatParams } = validatedParams;
+
+    return this.chat({
+      ...chatParams,
+      message: buildDeploymentMessage(chainId, prompt),
+    });
   }
 }
 

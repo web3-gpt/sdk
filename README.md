@@ -25,7 +25,8 @@ Useful commands:
 
 The SDK mirrors the public Web3GPT skill flow:
 
-1. Start a chat with no params
+1. Call `deployContract` with an explicit Polygon mainnet (137) or Amoy
+   (80002) chain ID, or start a lower-level chat with no params
 2. Save the returned `chatId`
 3. Send follow-up messages with the same `chatId`
 4. Add `history=true` or `full=true` when you want the full simplified history
